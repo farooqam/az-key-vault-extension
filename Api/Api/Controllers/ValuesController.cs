@@ -11,42 +11,21 @@ namespace Api.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private readonly IOptionsSnapshot<ValuesControllerOptions> optionsAccessor;
+        private readonly IOptionsSnapshot<ValuesControllerOptionsA> optionsAccessorA;
+        private readonly IOptionsSnapshot<ValuesControllerOptionsB> optionsAccessorB;
 
-        public ValuesController(IOptionsSnapshot<ValuesControllerOptions> optionsAccessor)
+        public ValuesController(
+            IOptionsSnapshot<ValuesControllerOptionsA> optionsAccessorA,
+            IOptionsSnapshot<ValuesControllerOptionsB> optionsAccessorB)
         {
-            this.optionsAccessor = optionsAccessor;
+            this.optionsAccessorA = optionsAccessorA;
+            this.optionsAccessorB = optionsAccessorB;
         }
         // GET api/values
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(new { this.optionsAccessor.Value.SettingsGroupA, this.optionsAccessor.Value.SettingsGroupB });
-        }
-
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return Ok(new { GroupA = this.optionsAccessorA.Value.SettingsGroup, GroupB = this.optionsAccessorB.Value.SettingsGroup });
         }
     }
 }
