@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace Api.Controllers
@@ -11,21 +7,22 @@ namespace Api.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private readonly IOptionsSnapshot<ValuesControllerOptionsA> optionsAccessorA;
-        private readonly IOptionsSnapshot<ValuesControllerOptionsB> optionsAccessorB;
+        private readonly IOptionsSnapshot<StorageOptions> _storageOptionsAccessor;
+        private readonly IOptionsSnapshot<DatabaseOptions> _databaseOptionsAccessor;
 
         public ValuesController(
-            IOptionsSnapshot<ValuesControllerOptionsA> optionsAccessorA,
-            IOptionsSnapshot<ValuesControllerOptionsB> optionsAccessorB)
+            IOptionsSnapshot<StorageOptions> storageOptionsAccessor,
+            IOptionsSnapshot<DatabaseOptions> databaseOptionsAccessor)
         {
-            this.optionsAccessorA = optionsAccessorA;
-            this.optionsAccessorB = optionsAccessorB;
+            _storageOptionsAccessor = storageOptionsAccessor;
+            _databaseOptionsAccessor = databaseOptionsAccessor;
         }
+
         // GET api/values
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(new { GroupA = this.optionsAccessorA.Value.SettingsGroup, GroupB = this.optionsAccessorB.Value.SettingsGroup });
+            return Ok(new { StorageOptions = _storageOptionsAccessor.Value, DatabaseOptions = _databaseOptionsAccessor.Value });
         }
     }
 }
