@@ -19,8 +19,11 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<StorageOptions>(Configuration.GetSection("StorageOptions"));
-            services.Configure<DatabaseOptions>(Configuration.GetSection("DatabaseOptions"));
+            //services.Configure<StorageOptions>(Configuration);
+            //services.Configure<DatabaseOptions>(Configuration);
+
+            services.Configure<StorageOptions>(opt => Configuration.GetSection("StorageOptions").Bind(opt));
+            services.Configure<DatabaseOptions>(opt => Configuration.GetSection("DatabaseOptions").Bind(opt));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
