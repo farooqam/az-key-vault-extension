@@ -1,0 +1,145 @@
+name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - 'master'
+      - 'wip'
+
+variables:
+  BuildConfiguration: 'Release' 
+  RootPath: 'Api'
+
+stages:
+
+- stage: build
+
+  jobs:
+
+  - job: 'BuildAndPublish'
+    pool:
+      name: 'Hosted VS2017'
+    steps:
+
+    - task: DotNetCoreCLI@2
+      displayName: Restore
+      inputs:
+        command: restore
+        projects: '$(RootPath)/**/*.csproj'
+        feedsToUse: config
+        nugetConfigPath: '$(RootPath)/nuget.config'
+
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        projects: '$(RootPath)/**/*.csproj'
+        arguments: '--configuration $(BuildConfiguration) /p:AssemblyVersion=$(Build.BuildNumber)'
+
+    - task: DotNetCoreCLI@2
+      displayName: Publish
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: '$(RootPath)/**/api.csproj'
+        arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
+
+    - task: CopyFiles@2
+      displayName: 'Copy ARM template'
+      inputs:
+        SourceFolder: $(RootPath)/ArmTemplates
+        Contents: '*.json'
+        TargetFolder: '$(build.artifactstagingdirectory)'
+
+    - task: PublishPipelineArtifact@0
+      displayName: 'Publish Pipeline Artifact'
+      inputs:
+        artifactName: 'drop'
+        targetPath: '$(build.artifactstagingdirectory)'
+
+- stage: Development
+  variables:
+    EnvironmentName: Development
+  jobs:
+
+  - deployment: 'Development'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+    pool:
+      name: 'Hosted VS2017'
+    environment: 'fm-d'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+            - task: DownloadPipelineArtifact@1
+              displayName: 'Download Pipeline Artifact'
+              inputs:
+                artifactName: 'drop'
+                targetPath: $(System.DefaultWorkingDirectory)
+
+            - task: AzureResourceGroupDeployment@2
+              displayName: 'Deploy resources'
+              inputs:
+                azureSubscription: 'Visual Studio Enterprise with MSDN (1e32e17d-db2c-4254-ac01-5010575e89dd)'
+                resourceGroupName: 'fm-d-usw2-rg'
+                location: 'West US 2'
+                csmFile: '$(System.DefaultWorkingDirectory)/azuredeploy.json'
+                csmParametersFile: '$(System.DefaultWorkingDirectory)/azuredeploy.parameters.$(EnvironmentName).json'
+                deploymentOutputs: deploymentOutputs
+
+            - powershell: |
+                $deploymentOutputs=(ConvertFrom-Json '$(deploymentOutputs)')
+                $appName=$($deploymentOutputs.appName.value)
+                Write-Host "##vso[task.setvariable variable=appName;issecret=false;]$appName"
+              displayName: 'Set API config variables'
+
+            - task: AzureRmWebAppDeployment@4
+              displayName: 'Deploy API'
+              inputs:
+                azureSubscription: 'Visual Studio Enterprise with MSDN (1e32e17d-db2c-4254-ac01-5010575e89dd)'
+                WebAppName: '$(appName)'
+                packageForLinux: '$(System.DefaultWorkingDirectory)/Api.zip'
+
+- stage: Production
+  variables:
+    EnvironmentName: Production
+  jobs:
+
+  - deployment: 'Production'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    pool:
+      name: 'Hosted VS2017'
+    environment: 'fm-p'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+            - task: DownloadPipelineArtifact@1
+              displayName: 'Download Pipeline Artifact'
+              inputs:
+                artifactName: 'drop'
+                targetPath: $(System.DefaultWorkingDirectory)
+
+            - task: AzureResourceGroupDeployment@2
+              displayName: 'Deploy resources'
+              inputs:
+                azureSubscription: 'Visual Studio Enterprise with MSDN (1e32e17d-db2c-4254-ac01-5010575e89dd)'
+                resourceGroupName: 'fm-p-usw2-rg'
+                location: 'West US 2'
+                csmFile: '$(System.DefaultWorkingDirectory)/azuredeploy.json'
+                csmParametersFile: '$(System.DefaultWorkingDirectory)/azuredeploy.parameters.$(EnvironmentName).json'
+                deploymentOutputs: deploymentOutputs
+
+            - powershell: |
+                $deploymentOutputs=(ConvertFrom-Json '$(deploymentOutputs)')
+                $appName=$($deploymentOutputs.appName.value)
+                Write-Host "##vso[task.setvariable variable=appName;issecret=false;]$appName"
+              displayName: 'Set API config variables'
+
+            - task: AzureRmWebAppDeployment@4
+              displayName: 'Deploy API'
+              inputs:
+                azureSubscription: 'Visual Studio Enterprise with MSDN (1e32e17d-db2c-4254-ac01-5010575e89dd)'
+                WebAppName: '$(appName)'
+                packageForLinux: '$(System.DefaultWorkingDirectory)/Api.zip'
