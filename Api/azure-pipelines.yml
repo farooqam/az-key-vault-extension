@@ -4,7 +4,6 @@ trigger:
   branches:
     include:
       - 'master'
-      - wip
       - 'develop'
 variables:
   BuildConfiguration: 'Release' 
@@ -99,6 +98,17 @@ stages:
                 azureSubscription: 'Visual Studio Enterprise with MSDN (1e32e17d-db2c-4254-ac01-5010575e89dd)'
                 WebAppName: '$(appName)'
                 packageForLinux: '$(System.DefaultWorkingDirectory)/Api.zip'
+            
+            - task: Npm@1
+              displayName: 'Install newman'
+              inputs:
+              command: custom
+              verbose: false
+              customCommand: 'install -g newman'
+
+            - script: 'newman run "API.postman_collection.json" -e "$(EnvironmentName).postman_environment.json"'
+              displayName: 'Run Postman tests'
+              workingDirectory: '$(System.DefaultWorkingDirectory)'
 
 - stage: Production
   variables:
@@ -143,3 +153,14 @@ stages:
                 azureSubscription: 'Visual Studio Enterprise with MSDN (1e32e17d-db2c-4254-ac01-5010575e89dd)'
                 WebAppName: '$(appName)'
                 packageForLinux: '$(System.DefaultWorkingDirectory)/Api.zip'
+
+            - task: Npm@1
+              displayName: 'Install newman'
+              inputs:
+              command: custom
+              verbose: false
+              customCommand: 'install -g newman'
+
+            - script: 'newman run "API.postman_collection.json" -e "$(EnvironmentName).postman_environment.json"'
+              displayName: 'Run Postman tests'
+              workingDirectory: '$(System.DefaultWorkingDirectory)'

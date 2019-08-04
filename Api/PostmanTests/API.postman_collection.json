@@ -1,0 +1,89 @@
+{
+	"info": {
+		"_postman_id": "db27aeb3-8310-474e-a193-c03bbc594247",
+		"name": "Key Vault Extension Test API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ValuesController - GET",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b9ae76f6-7803-4d7d-9f15-64e32aba304a",
+						"exec": [
+							"pm.environment.set('Top', 1);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "d4e984bc-2bd0-4eff-98e1-c390033e7e06",
+						"exec": [
+							"pm.test('response is ok', function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var items = pm.response.json().value;\r",
+							"\r",
+							"pm.test('items contains the expected number of items and expected fields', function () {\r",
+							"    pm.expect(items.length).to.equal(pm.environment.get('Top'));\r",
+							"    \r",
+							"    for(var i = 0; i < items.length; i++) {\r",
+							"        Object.keys(items[i]).forEach(key => {\r",
+							"            pm.expect(items[i]['Id']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['DeviceId']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['Device_Id']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['DeviceCode']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['DeviceSerialNumber']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['ComponentName']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['ComponentSerialNumber']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['TimeStampUtc']).not.equal(undefined);\r",
+							"            \r",
+							"            pm.expect(items[i]['GeneratorOnTimeHours']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['GeneratorOnTimeSincePvHours']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['GeneratorTemperatureCelsius']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['SensorOnTimeHours']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['SensorXrayTimeHours']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['SensorTemperatureCelsius']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['SensorCalibrationAgeHours']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['SensorCalibrationAgeTimeStampUtc']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['SensorSetpointTemperatureCelsius']).not.equal(undefined);\r",
+							"            pm.expect(items[i]['SensorInstallDateTimeStampUtc']).not.equal(undefined);\r",
+							"        });\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{hostname}}/odata/sensorxphantomvalidationsensorinfo?$top={{Top}}",
+					"protocol": "http",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"odata",
+						"sensorxphantomvalidationsensorinfo"
+					],
+					"query": [
+						{
+							"key": "$top",
+							"value": "{{Top}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
