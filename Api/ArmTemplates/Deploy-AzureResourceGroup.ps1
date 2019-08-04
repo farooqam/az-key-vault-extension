@@ -1,8 +1,8 @@
 #Requires -Version 3.0
 
 Param(
-    [string] $ResourceGroupLocation = 'westus2',
-    #[string] $ResourceGroupName = 'fm-d-usw2-rg',
+    [string] [Parameter(Mandatory=$true)] $ResourceGroupLocation,
+    [string] [Parameter(Mandatory=$true)] $ResourcePrefix,
     [switch] $UploadArtifacts,
     [string] $StorageAccountName,
     #[string] $StorageContainerName = $ResourceGroupName.ToLowerInvariant() + '-stageartifacts',
@@ -26,11 +26,16 @@ function Format-ValidationOutput {
     return @($ValidationOutput | Where-Object { $_ -ne $null } | ForEach-Object { @('  ' * $Depth + ': ' + $_.Message) + @(Format-ValidationOutput @($_.Details) ($Depth + 1)) })
 }
 
-#if (($EnvironmentName.ToLowerInvariant() -ne 'development') -or ($EnvironmentName.ToLowerInvariant() -ne 'production')) {
-#	throw 'Valid values for -EnvironmentName are ''Development'' and ''Production'''
-#l}
+$LocationShort = ''
 
-$ResourceGroupName = 'fm-'+ $EnvironmentName.Substring(0, 1).ToLowerInvariant() + '-usw2-rg'
+if ($ResourceGroupLocation.ToLowerInvariant() -eq 'westus2') {
+	$LocationShort = 'usw2'
+}
+else {
+	throw 'Invalid region.'
+}
+
+$ResourceGroupName = $ResourcePrefix + '-' + $EnvironmentName.Substring(0, 1).ToLowerInvariant() + '-' + $LocationShort + '-rg'
 $StorageContainerName = $ResourceGroupName.ToLowerInvariant() + '-stageartifacts'
 
 $OptionalParameters = New-Object -TypeName Hashtable

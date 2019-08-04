@@ -98,7 +98,44 @@
       "metadata": {
         "description": "Specifies all secrets {\"secretName\":\"\",\"secretValue\":\"\"} wrapped in a secure object."
       }
+    },
+    "appName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the web app that you wish to create."
+      }
+    },
+    "env": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the deployment environment."
+      },
+      "allowedValues": [
+        "Development",
+        "Staging",
+        "Production"
+      ]
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "S1",
+      "metadata": {
+        "description": "The SKU of App Service Plan "
+      }
+    },
+    "linuxFxVersion": {
+      "type": "string",
+      "defaultValue": "php|7.0",
+      "metadata": {
+        "description": "The Runtime stack of current web app"
+      }
     }
+  },
+  "variables": {
+    "webAppName": "[parameters('appName')]",
+    "appServicePlanName": "[parameters('appName')]",
+    "applicationInsightsName": "[parameters('appName')]",
+    "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('webAppName')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
   },
   "resources": [
     {
@@ -150,6 +187,100 @@
       "properties": {
         "value": "[parameters('secretsObject').secrets[copyIndex()].secretValue]"
       }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2017-08-01",
+      "kind": "app",
+      "name": "[variables('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [],
+      "sku": {
+        "name": "[parameters('sku')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2016-08-01",
+      "kind": "app",
+      "name": "[variables('webAppName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "appsettings",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('webAppName'))]",
+            "Microsoft.ApplicationInsights.AzureWebSites"
+          ],
+          "properties": {
+            "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', variables('applicationInsightsName'))).InstrumentationKey]",
+            "ASPNETCORE_ENVIRONMENT": "[parameters('env')]",
+            "ApplicationInsightsAgent_EXTENSION_VERSION": "~2",
+            "XDT_MicrosoftApplicationInsights_Mode": "recommended",
+            "InstrumentationEngine_EXTENSION_VERSION": "~1",
+            "DiagnosticServices_EXTENSION_VERSION": "~3",
+            "APPINSIGHTS_PROFILERFEATURE_VERSION": "1.0.0",
+            "XDT_MicrosoftApplicationInsights_BaseExtensions": "~1"
+
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "name": "Microsoft.ApplicationInsights.AzureWebSites",
+          "type": "siteextensions",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('webAppName'))]"
+          ],
+          "properties": {
+          }
+        }
+      ],
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+      ]
+    },
+    {
+      "apiVersion": "2018-05-01-preview",
+      "name": "[variables('applicationInsightsName')]",
+      "type": "microsoft.insights/components",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource"
+      },
+      "properties": {
+        "ApplicationId": "[variables('applicationInsightsName')]",
+        "Request_Source": "IbizaWebAppExtensionCreate"
+      }
     }
-  ]
+  ],
+  "outputs": {
+    "appName": {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.Web/sites/', parameters('appName'))).name]"
+    },
+    "endpointUri": {
+      "type": "string",
+      "value": "[concat('https://', reference(concat('Microsoft.Web/sites/', parameters('appName'))).defaultHostName)]"
+    },
+    "appInsightsInstrumentationKey": {
+      "type": "string",
+      "value": "[reference(concat('microsoft.insights/components/', parameters('appName'))).InstrumentationKey]"
+    },
+    "tenantId": {
+      "type": "string",
+      "value": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]"
+    },
+    "objectId": {
+      "type": "string",
+      "value": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]"
+    }
+  }
 }

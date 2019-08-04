@@ -21,6 +21,12 @@
           }
         ]
       }
+    },
+    "appName": {
+      "value": "fm-d-usw2-web"
+    },
+    "env": {
+      "value": "Development"
     }
   }
 }
