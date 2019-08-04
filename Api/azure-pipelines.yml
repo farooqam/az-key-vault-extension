@@ -52,7 +52,7 @@ stages:
     - task: CopyFiles@2
       displayName: 'Copy Postman tests'
       inputs:
-        SourceFolder: $(RootPath)/Api/PostmanTests
+        SourceFolder: $(RootPath)/PostmanTests
         Contents: '*.json'
         TargetFolder: '$(build.artifactstagingdirectory)'
 
