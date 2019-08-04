@@ -8,9 +8,9 @@
     "objectId": {
       "value": "461fe9e1-8f2c-44aa-886d-885fc5e82772"
     },
-    "secrets": {
+    "secretsObject": {
       "value": {
-        "array": [
+        "secrets": [
           {
             "secretName": "StorageConnectionString",
             "secretValue": "storage connection string (prod-kv)"

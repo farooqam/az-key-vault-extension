@@ -5,9 +5,9 @@ Param(
     #[string] $ResourceGroupName = 'fm-d-usw2-rg',
     [switch] $UploadArtifacts,
     [string] $StorageAccountName,
-    [string] $StorageContainerName = $ResourceGroupName.ToLowerInvariant() + '-stageartifacts',
+    #[string] $StorageContainerName = $ResourceGroupName.ToLowerInvariant() + '-stageartifacts',
     [string] $TemplateFile = 'azuredeploy.json',
-	[string] [Parameter(Mandatory=$true)] [ValidateSet('Production', 'Development')] $EnvironmentName
+	[string] [Parameter(Mandatory=$true)] [ValidateSet('Production', 'Development')] $EnvironmentName,
     [string] $ArtifactStagingDirectory = '.',
     [string] $DSCSourceFolder = 'DSC',
     [switch] $ValidateOnly
@@ -30,15 +30,18 @@ function Format-ValidationOutput {
 #	throw 'Valid values for -EnvironmentName are ''Development'' and ''Production'''
 #l}
 
+$ResourceGroupName = 'fm-'+ $EnvironmentName.Substring(0, 1).ToLowerInvariant() + '-usw2-rg'
+$StorageContainerName = $ResourceGroupName.ToLowerInvariant() + '-stageartifacts'
+
 $OptionalParameters = New-Object -TypeName Hashtable
 $TemplateFile = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, $TemplateFile))
 
-$TemplateParametersFile = "azure.deploy.parameters.$EnvironmentName.json"
+$TemplateParametersFile = 'azuredeploy.parameters.' + $EnvironmentName.ToLowerInvariant() + '.json'
 $TemplateParametersFile = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, $TemplateParametersFile))
 
 if ($UploadArtifacts) {
     # Convert relative paths to absolute paths if needed
-    $ArtifactStagingDirectory = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, $ArtifactStagingDirectory))
+    $ArtifactStagingDilrectory = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, $ArtifactStagingDirectory))
     $DSCSourceFolder = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, $DSCSourceFolder))
 
     # Parse the parameter file and update the values of artifacts location and artifacts location SAS token if they are present
