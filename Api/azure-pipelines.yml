@@ -4,8 +4,8 @@ trigger:
   branches:
     include:
       - 'master'
-      - 'wip'
-
+      - wip
+      - 'develop'
 variables:
   BuildConfiguration: 'Release' 
   RootPath: 'Api'
