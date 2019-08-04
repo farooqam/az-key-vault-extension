@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ArmTemplates", "ArmTemplate
 		ArmTemplates\azuredeploy.json = ArmTemplates\azuredeploy.json
 		ArmTemplates\azuredeploy.parameters.Development.json = ArmTemplates\azuredeploy.parameters.Development.json
 		ArmTemplates\azuredeploy.parameters.Production.json = ArmTemplates\azuredeploy.parameters.Production.json
+		ArmTemplates\Deploy-AzureResourceGroup.ps1 = ArmTemplates\Deploy-AzureResourceGroup.ps1
 	EndProjectSection
 EndProject
 Global
