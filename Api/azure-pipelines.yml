@@ -102,9 +102,9 @@ stages:
             - task: Npm@1
               displayName: 'Install newman'
               inputs:
-              command: custom
-              verbose: false
-              customCommand: 'install -g newman'
+                  command: custom
+                  verbose: false
+                  customCommand: 'install -g newman'
 
             - script: 'newman run "API.postman_collection.json" -e "$(EnvironmentName).postman_environment.json"'
               displayName: 'Run Postman tests'
