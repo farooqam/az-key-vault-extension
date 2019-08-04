@@ -49,6 +49,13 @@ stages:
         Contents: '*.json'
         TargetFolder: '$(build.artifactstagingdirectory)'
 
+    - task: CopyFiles@2
+      displayName: 'Copy Postman tests'
+      inputs:
+        SourceFolder: $(RootPath)/Api/PostmanTests
+        Contents: '*.json'
+        TargetFolder: '$(build.artifactstagingdirectory)'
+
     - task: PublishPipelineArtifact@0
       displayName: 'Publish Pipeline Artifact'
       inputs:
