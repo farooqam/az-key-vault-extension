@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
+      "value": "fm-d-usw2-kv"
+    },
+    "objectId": {
+      "value": "461fe9e1-8f2c-44aa-886d-885fc5e82772"
+    },
+    "secretsObject": {
+      "value": {
+        "secrets": [
+          {
+            "secretName": "StorageConnectionString",
+            "secretValue": "storage connection string (dev-kv)"
+          },
+          {
+            "secretName": "DatabaseConnectionString",
+            "secretValue": "database connection string (dev-kv)"
+          }
+        ]
+      }
+    },
+    "appName": {
+      "value": "fm-d-usw2-web"
+    },
+    "env": {
+      "value": "Development"
+    }
+  }
+}
