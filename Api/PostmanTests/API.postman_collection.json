@@ -1,0 +1,68 @@
+{
+	"info": {
+		"_postman_id": "db27aeb3-8310-474e-a193-c03bbc594247",
+		"name": "Key Vault Extension Test API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ValuesController - GET",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "560c171b-c66a-4bc3-a5e0-1444ed22d5a8",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "e7f29f2c-9965-445c-8043-0aa7b0c33f2c",
+						"exec": [
+							"pm.test('response is ok', function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var json = pm.response.json();\r",
+							"var databaseOptions = json.databaseOptions;\r",
+							"var storageOptions = json.storageOptions;\r",
+							"\r",
+							"pm.test('response contains expected fields', function () {\r",
+							"    if (pm.environment.name.toLowerCase() === 'development' || pm.environment.name.toLowerCase() === 'local') {\r",
+							"            pm.expect(databaseOptions.connectionString).to.equal('database connection string (dev-kv)');\r",
+							"            pm.expect(storageOptions.connectionString).to.equal('storage connection string (dev-kv)'); \r",
+							"            pm.expect(storageOptions.containerName).to.equal('container (dev)');\r",
+							"    } else {\r",
+							"        pm.expect(databaseOptions.connectionString).to.equal('database connection string (prod-kv)');\r",
+							"        pm.expect(storageOptions.connectionString).to.equal('storage connection string (prod-kv)'); \r",
+							"        pm.expect(storageOptions.containerName).to.equal('container (prod)');\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{hostname}}/api/values",
+					"protocol": "http",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"api",
+						"values"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
