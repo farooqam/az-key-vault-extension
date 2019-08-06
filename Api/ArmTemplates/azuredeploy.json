@@ -105,6 +105,12 @@
         "description": "The name of the web app that you wish to create."
       }
     },
+    "appId": {
+      "type": "string",
+      "metadata": {
+        "description": "The app id."
+      }
+    },
     "env": {
       "type": "string",
       "metadata": {
@@ -154,6 +160,14 @@
         "accessPolicies": [
           {
             "objectId": "[parameters('objectId')]",
+            "tenantId": "[parameters('tenantId')]",
+            "permissions": {
+              "keys": "[parameters('keysPermissions')]",
+              "secrets": "[parameters('secretsPermissions')]"
+            }
+          },
+          {
+            "objectId": "[parameters('appId')]",
             "tenantId": "[parameters('tenantId')]",
             "permissions": {
               "keys": "[parameters('keysPermissions')]",

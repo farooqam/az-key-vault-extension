@@ -25,6 +25,9 @@
     "appName": {
       "value": "fm-p-usw2-web"
     },
+    "appId": {
+      "value": "f50986f6-6d19-4f06-ac65-1ff1b5844d5f"
+    },
     "env": {
       "value": "Production"
     }
